@@ -3931,7 +3931,6 @@
     }
     if (document.querySelector(".promo__slider")) new Swiper(".promo__slider", {
         modules: [ Navigation, Pagination, EffectFade ],
-        direction: "vertical",
         effect: "fade",
         fadeEffect: {
             crossFade: true
@@ -4000,6 +3999,49 @@
             behavior: "smooth"
         });
     };
+    function calcScroll() {
+        let div = document.createElement("div");
+        div.style.width = "100px";
+        div.style.height = "100px";
+        div.style.overflowY = "scroll";
+        div.style.visibility = "hidden";
+        document.body.appendChild(div);
+        let scrollWidth = div.offsetWidth - div.clientWidth;
+        div.remove();
+        return scrollWidth;
+    }
+    document.addEventListener("DOMContentLoaded", (function() {
+        const galleryImages = document.querySelectorAll(".gallery__slide-img");
+        const modal = document.querySelector(".gallery-modal");
+        const scroll = calcScroll();
+        if (!modal) return;
+        galleryImages.forEach((function(image) {
+            image.addEventListener("click", (function(e) {
+                e.preventDefault();
+                const imageUrl = this.getAttribute("data-image");
+                openModal(imageUrl);
+            }));
+        }));
+        function openModal(imageUrl) {
+            const modalImg = modal.querySelector("img");
+            modalImg.src = imageUrl;
+            if (document.documentElement.classList.contains("webp")) {
+                const modalImgWebp = modal.querySelector("source");
+                modalImgWebp.srcset = imageUrl.replace(/\.jpg$/, ".webp");
+            }
+            modal.classList.add("gallery-modal--active");
+            document.body.style.overflow = "hidden";
+            document.body.style.marginRight = `${scroll}px`;
+            modal.addEventListener("click", (function() {
+                closeModal();
+            }));
+        }
+        function closeModal() {
+            modal.classList.remove("gallery-modal--active");
+            document.body.style.overflow = "auto";
+            document.body.style.marginRight = "0px";
+        }
+    }));
     window.addEventListener("DOMContentLoaded", (() => {
         isWebp();
         menuInit();
